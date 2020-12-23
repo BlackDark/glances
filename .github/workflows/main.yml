@@ -26,12 +26,14 @@ jobs:
           DOCKER_PLATFORMS: ${{ matrix.platform }}
         run: |
           VERSION=latest
+          BASE_IMAGE=3-slim-buster
           
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
           if [[ $GITHUB_REF == refs/heads/develop ]]; then
             VERSION=dev
+            BASE_IMAGE=3-buster
           fi
 
           TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
@@ -43,6 +45,7 @@ jobs:
           echo ::set-output name=version::${VERSION}
           echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
             --build-arg VERSION=${VERSION} \
+            --build-arg BASE_IMAGE=${BASE_IMAGE} \
             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
             --build-arg VCS_REF=${GITHUB_SHA::8} \
             ${TAGS} --file ./docker-files/Dockerfile ./docker-files/

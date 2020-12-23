@@ -5,7 +5,8 @@
 #
 
 ARG ARCH=
-FROM ${ARCH}python:3-slim-buster
+ARG BASE_IMAGE=3-slim-buster
+FROM ${ARCH}python:${BASE_IMAGE}
 
 # Install package
 # Must used calibre package to be able to run external module
@@ -28,7 +29,7 @@ RUN if [  "$VERSION" = "dev" ] ; then \
     apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* ; \
     pip3 install psutil bottle ; \
     git clone -b develop https://github.com/nicolargo/glances.git ; \
-    CASS_DRIVER_NO_CYTHON=1 pip install -r /glances/optional-requirements.txt ; \
+    pip install -r /glances/optional-requirements.txt ; \
   else \
     echo Installing glances from pip; \
     pip3 install glances[all]; \
