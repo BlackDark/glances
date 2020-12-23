@@ -27,9 +27,9 @@ ARG VERSION
 RUN if [  "$VERSION" = "dev" ] ; then \
     echo Installing dev branch of glances from git; \
     apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* ; \
-    pip3 install psutil bottle ; \
+    pip install psutil bottle ; \
     git clone -b develop https://github.com/nicolargo/glances.git ; \
-    pip install -r /glances/optional-requirements.txt ; \
+    CASS_DRIVER_NO_CYTHON=1 pip install -r /glances/optional-requirements.txt ; \
   else \
     echo Installing glances from pip; \
     pip3 install glances[all]; \
