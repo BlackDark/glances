@@ -75,15 +75,15 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          push: ${PUSH_IMAGE} == true
-          tags: ${TAGS}
+          push: ${{PUSH_IMAGE == true}}
+          tags: ${{TAGS}}
           build-args: |
-            VERSION=${VERSION}
-            BUILD_DATE=${BUILD_DATE}
-            VCS_REF=${VCS_REF}
+            VERSION=${{VERSION}}
+            BUILD_DATE=${{BUILD_DATE}}
+            VCS_REF=${{VCS_REF}}
           context: .
-          file: ${DOCKERFILE}
-          platforms: ${PLATFORMS}
+          file: ${{DOCKERFILE}}
+          platforms: ${{PLATFORMS}}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
