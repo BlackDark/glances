@@ -30,10 +30,10 @@ jobs:
           DOCKER_PLATFORMS: linux/amd64,linux/arm/v7,linux/arm64,linux/386
         run: |
           DOCKERFILE=./docker-files/Dockerfile
+          VERSION=latest
           PUSH_IMAGE=false
           
           if [[ $GITHUB_REF == refs/heads/master ]]; then
-            VERSION=latest
             PUSH_IMAGE=true
           fi
           if [[ $GITHUB_REF == refs/tags/* ]]; then
