@@ -2,10 +2,9 @@ name: CI
 
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE || 'nicolargo/glances' }}
-  NODE_ENV: ${{ (contains('refs/heads/master', github.ref) || startsWith(github.ref, 'refs/tags/v')) && 'prod' || 'prod' }}
-  PUSH_BRANCH: ${{ 'refs/heads/develop' == github.ref || 'refs/heads/master' == github.ref || startsWith(github.ref, 'refs/tags/v') || true }}
+  NODE_ENV: ${{ (contains('refs/heads/master', github.ref) || startsWith(github.ref, 'refs/tags/v')) && 'prod' || 'dev' }}
+  PUSH_BRANCH: ${{ 'refs/heads/develop' == github.ref || startsWith(github.ref, 'refs/tags/v') }}
   DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386
-  DOCKERFILE: ${{ env.NODE_ENV == 'prod' && './docker-files/Dockerfile' || './docker-files/dev.Dockerfile' }}
   DOCKERFILE_ALPINE: './docker-files/alpine.Dockerfile'
 
 on:
@@ -32,21 +31,26 @@ jobs:
             ${{ runner.os }}-buildx-${{ env.NODE_ENV }}
 
       - name: Configure ENVs
+        env:
+          DOCKERFILE: ${{ env.NODE_ENV == 'prod' && './docker-files/Dockerfile' || './docker-files/dev.Dockerfile' }}
         run: |
+          echo "Checking build cache:"
           ls -la /tmp/.buildx-cache || true
-          VERSION=latest
+          
+          VERSION=unset
 
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            TAGS=${DOCKER_IMAGE}:latest
           fi
 
           if [[ $GITHUB_REF == refs/heads/develop ]]; then
             VERSION=dev
           fi
 
-          VERSION=latest
+          echo "DOCKERFILE=${DOCKERFILE}" >> $GITHUB_ENV
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "TAGS=${DOCKER_IMAGE}:${VERSION}" >> $GITHUB_ENV
+          echo "TAGS=${DOCKER_IMAGE}:${VERSION},${TAGS}" >> $GITHUB_ENV
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
           echo "VCS_REF=${GITHUB_SHA::8}" >> $GITHUB_ENV
 
